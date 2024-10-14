@@ -10,7 +10,30 @@ from presidio_anonymizer.entities import OperatorConfig
 import re
 
 class PIIAnalyzer:
+    """
+    A class for analyzing and detecting Personally Identifiable Information (PII) in text.
+
+    This class provides methods for loading configurations, creating recognizer registries,
+    analyzing text for PII, and managing supported languages.
+
+    Attributes:
+        config (Dict): Configuration dictionary for the analyzer.
+        nlp_engine_provider (NlpEngineProvider): Provider for NLP engine.
+        recognizer_registry (RecognizerRegistry): Registry of PII recognizers.
+        analyzer_engine (AnalyzerEngine): Engine for analyzing text.
+    """
+
     def __init__(self, config_path: Optional[str] = None, custom_recognizers_path: Optional[str] = None):
+        """
+        Initialize the PIIAnalyzer.
+
+        Args:
+            config_path (Optional[str]): Path to the configuration file.
+            custom_recognizers_path (Optional[str]): Path to custom recognizers configuration.
+
+        Returns:
+            None
+        """
         self.config = self.load_config(config_path)
         self.nlp_engine_provider = NlpEngineProvider(nlp_engine_name=self.config.get("nlp_engine", "spacy"))
         self.recognizer_registry = self.create_recognizer_registry(custom_recognizers_path)
@@ -21,6 +44,18 @@ class PIIAnalyzer:
         )
 
     def load_config(self, config_path: Optional[str]) -> Dict:
+        """
+        Load configuration from a file.
+
+        Args:
+            config_path (Optional[str]): Path to the configuration file.
+
+        Returns:
+            Dict: Loaded configuration as a dictionary.
+
+        Raises:
+            ValueError: If the config file format is unsupported.
+        """
         if not config_path:
             return {}
         
@@ -32,6 +67,15 @@ class PIIAnalyzer:
         raise ValueError("Unsupported config file format. Use .yml, .yaml, or .json")
 
     def create_recognizer_registry(self, custom_recognizers_path: Optional[str] = None) -> RecognizerRegistry:
+        """
+        Create a recognizer registry with predefined and custom recognizers.
+
+        Args:
+            custom_recognizers_path (Optional[str]): Path to custom recognizers configuration.
+
+        Returns:
+            RecognizerRegistry: A registry containing predefined and custom recognizers.
+        """
         registry = RecognizerRegistry()
         registry.load_predefined_recognizers()
 
@@ -44,6 +88,19 @@ class PIIAnalyzer:
         return registry
 
     def save_config(self, config_path: str, format: str = "yaml") -> str:
+        """
+        Save the current configuration to a file.
+
+        Args:
+            config_path (str): Path where the configuration will be saved.
+            format (str): Format of the configuration file ('yaml' or 'json').
+
+        Returns:
+            str: Path where the configuration was saved.
+
+        Raises:
+            ValueError: If an unsupported format is specified.
+        """
         with open(config_path, 'w') as file:
             if format == "yaml":
                 yaml.dump(self.config, file)
@@ -60,6 +117,9 @@ class PIIAnalyzer:
         Args:
             language_code (str): The ISO code for the language (e.g., 'fr' for French)
             model_path (Optional[str]): Path to the custom NLP model for this language
+
+        Returns:
+            None
         """
         if language_code not in self.config.get("supported_languages", []):
             self.config["supported_languages"].append(language_code)
@@ -98,7 +158,15 @@ class PIIAnalyzer:
         return [result.to_dict() for result in analyzer_results]
 
     def update_config(self, **kwargs):
-        """Update configuration attributes."""
+        """
+        Update configuration attributes.
+
+        Args:
+            **kwargs: Arbitrary keyword arguments to update the configuration.
+
+        Returns:
+            None
+        """
         self.config.update(kwargs)
         # Reinitialize components that depend on the updated config
         self.recognizer_registry = self.create_recognizer_registry(kwargs.get("custom_recognizers_path"))
@@ -109,6 +177,15 @@ class PIIAnalyzer:
         )
 
 def main():
+    """
+    Main function to run the PII Analyzer.
+
+    This function sets up command-line argument parsing, initializes the PIIAnalyzer,
+    and runs an example analysis.
+
+    Returns:
+        None
+    """
     parser = argparse.ArgumentParser(description="PII Analyzer with custom recognizers")
     parser.add_argument("--config", help="Path to the main configuration file", default="config.yml")
     parser.add_argument("--recognizers", help="Path to the custom recognizers configuration file", default="recognizers-config.yml")
