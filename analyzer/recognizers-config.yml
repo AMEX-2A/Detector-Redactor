@@ -1,6 +1,6 @@
 global_regex_flags: 26
 
-supported_languages: 
+supported_languages:
   - en
   - es
 
@@ -8,7 +8,7 @@ recognizers:
   - name: CreditCardCVVRecognizer
     patterns:
       - name: "CVV"
-        regex: "\b\d{3,4}\b"
+        regex: "\\b\\d{3,4}\\b"
         score: 0.7
     supported_languages:
       - language: en
@@ -21,7 +21,7 @@ recognizers:
   - name: AmexAccountNumberRecognizer
     patterns:
       - name: "AMEX"
-        regex: "\b3[47]\d{2}[-\s]?\d{6}[-\s]?\d{5}\b"
+        regex: "\b3[47]\\d{2}[-\\s]?\\d{6}[-\\s]?\\d{5}\b"
         score: 0.9
     supported_languages:
       - language: en
@@ -34,7 +34,7 @@ recognizers:
   - name: PasswordRecognizer
     patterns:
       - name: "PASSWORD"
-        regex: "\b(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}\b"
+        regex: "\b(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}\b"
         score: 0.6
     supported_languages:
       - language: en
@@ -53,7 +53,13 @@ recognizers:
       - language: en
         context: [user, username, userid, login]
       - language: es
-        context: [usuario, nombre de usuario, identificación de usuario, inicio de sesión]
+        context:
+          [
+            usuario,
+            nombre de usuario,
+            identificación de usuario,
+            inicio de sesión,
+          ]
     supported_entity: "USERID"
     type: custom
 
