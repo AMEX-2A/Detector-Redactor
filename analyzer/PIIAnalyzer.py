@@ -7,6 +7,8 @@ from presidio_analyzer.nlp_engine import NlpEngineProvider
 from presidio_analyzer.recognizer_registry import RecognizerRegistryProvider
 from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
+from Crypto.Random import get_random_bytes
+from FPE import FPE  
 import re
 
 class PIIAnalyzer:
@@ -48,6 +50,8 @@ class PIIAnalyzer:
             supported_languages=self.config.get("supported_languages", ["en"])
         )
         self.anonymizer_engine = AnonymizerEngine()
+        self.encryption_key = get_random_bytes(16) 
+        self.fpe_operator = FPE(self.encryption_key)
 
     def load_config(self, config_path: Optional[str]) -> Dict:
         """
@@ -184,16 +188,21 @@ class PIIAnalyzer:
         
     def analyze_and_anonymize(self, text: str, language: str = "en"):
         
+        """
+        Analyze the text and anonymize sensitive entities using format-preserving encryption.
+        """
         analyzer_results = self.analyze_text(text)
-        
-        # operators = {
-        #     "DEFAULT": OperatorConfig("encrypt", {"key": "WmZq4t7w!z%C&F)J"})
-        # }
-        operators = {
-            "DEFAULT": OperatorConfig("replace", {"new_value" : "<ANONYMIZED>"})
-        }
-        anonymized_text = self.anonymizer_engine.anonymize(text=text, analyzer_results=analyzer_results, operators=operators)
-        
+
+        anonymized_text = text
+        for result in analyzer_results:
+            start = result.start
+            end = result.end
+            entity_text = text[start:end]
+
+            anonymized_entity = self.fpe_operator.operate(entity_text)
+
+            anonymized_text = anonymized_text[:start] + anonymized_entity + anonymized_text[end:]
+
         return anonymized_text
 
 def main():
@@ -217,8 +226,9 @@ def main():
     text = "My credit card CVV is 123 and my AMEX account number is 371449635398431 and my vin number is 1HGCM82633A123456"
     results = analyzer.analyze_text(text)
     print("Analyzed results:", results)
+    print("Original Text: ", text)
     anonymized_text = analyzer.analyze_and_anonymize(text)
-    print("Anonymized Text:" , anonymized_text.text)
+    print("Anonymized Text:" , anonymized_text)
 
 if __name__ == "__main__":
     main()
