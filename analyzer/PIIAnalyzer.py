@@ -35,10 +35,10 @@ class PIIAnalyzer:
             None
         """
         configuration = {
-    "nlp_engine_name": "spacy",
-    "models": [{"lang_code": "es", "model_name": "es_core_news_md"},
-                {"lang_code": "en", "model_name": "en_core_web_lg"}],
-}
+            "nlp_engine_name": "spacy",
+            "models": [{"lang_code": "es", "model_name": "es_core_news_md"},
+                        {"lang_code": "en", "model_name": "en_core_web_lg"}],
+                        }   
         self.config = self.load_config(config_path)
         self.nlp_engine_provider = NlpEngineProvider(nlp_configuration=configuration)
         self.recognizer_registry = self.create_recognizer_registry(custom_recognizers_path)
@@ -180,6 +180,7 @@ class PIIAnalyzer:
             registry=self.recognizer_registry,
             supported_languages=self.config["supported_languages"]
         )
+        
     def analyze_and_anonymize(self, text: str, language: str = "en"):
         
         analyzer_results = self.analyzer_engine.analyze(text=text, language=language)
@@ -214,7 +215,7 @@ def main():
     results = analyzer.analyze_text(text)
     print("Analyzed results:", results)
     anonymized_text = analyzer.analyze_and_anonymize(text)
-    print("Anonymized Text:" ,anonymized_text)
+    print("Anonymized Text:" , anonymized_text)
 
 if __name__ == "__main__":
     main()
