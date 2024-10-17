@@ -7,6 +7,8 @@ from presidio_analyzer.nlp_engine import NlpEngineProvider
 from presidio_analyzer.recognizer_registry import RecognizerRegistryProvider
 from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
+from Crypto.Random import get_random_bytes
+from FPE import FPE  
 import re
 
 class PIIAnalyzer:
@@ -34,14 +36,22 @@ class PIIAnalyzer:
         Returns:
             None
         """
+        configuration = {
+            "nlp_engine_name": "spacy",
+            "models": [{"lang_code": "es", "model_name": "es_core_news_md"},
+                        {"lang_code": "en", "model_name": "en_core_web_lg"}],
+                        }   
         self.config = self.load_config(config_path)
-        self.nlp_engine_provider = NlpEngineProvider(nlp_engine_name=self.config.get("nlp_engine", "spacy"))
+        self.nlp_engine_provider = NlpEngineProvider(nlp_configuration=configuration)
         self.recognizer_registry = self.create_recognizer_registry(custom_recognizers_path)
         self.analyzer_engine = AnalyzerEngine(
             nlp_engine=self.nlp_engine_provider.create_engine(),
             registry=self.recognizer_registry,
-            supported_languages=self.config.get("supported_languages", ["en", "es"])
+            supported_languages=self.config.get("supported_languages", ["en"])
         )
+        self.anonymizer_engine = AnonymizerEngine()
+        self.encryption_key = get_random_bytes(16) 
+        self.fpe_operator = FPE(self.encryption_key)
 
     def load_config(self, config_path: Optional[str]) -> Dict:
         """
@@ -152,10 +162,10 @@ class PIIAnalyzer:
             language=language,
             entities=self.config.get("entities_to_analyze"),
             allow_list=self.config.get("allow_list"),
-            trace=trace
         )
         
-        return [result.to_dict() for result in analyzer_results]
+        #return [result.to_dict() for result in analyzer_results]
+        return analyzer_results
 
     def update_config(self, **kwargs):
         """
@@ -175,6 +185,25 @@ class PIIAnalyzer:
             registry=self.recognizer_registry,
             supported_languages=self.config["supported_languages"]
         )
+        
+    def analyze_and_anonymize(self, text: str, language: str = "en"):
+        
+        """
+        Analyze the text and anonymize sensitive entities using format-preserving encryption.
+        """
+        analyzer_results = self.analyze_text(text)
+
+        anonymized_text = text
+        for result in analyzer_results:
+            start = result.start
+            end = result.end
+            entity_text = text[start:end]
+
+            anonymized_entity = self.fpe_operator.operate(entity_text)
+
+            anonymized_text = anonymized_text[:start] + anonymized_entity + anonymized_text[end:]
+
+        return anonymized_text
 
 def main():
     """
@@ -194,9 +223,12 @@ def main():
     analyzer = PIIAnalyzer(config_path=args.config, custom_recognizers_path=args.recognizers)
 
     # Example usage
-    text = "My credit card CVV is 123 and my AMEX account number is 371449635398431"
+    text = "My credit card CVV is 123 and my AMEX account number is 371449635398431 and my vin number is 1HGCM82633A123456"
     results = analyzer.analyze_text(text)
     print("Analyzed results:", results)
+    print("Original Text: ", text)
+    anonymized_text = analyzer.analyze_and_anonymize(text)
+    print("Anonymized Text:" , anonymized_text)
 
 if __name__ == "__main__":
     main()
