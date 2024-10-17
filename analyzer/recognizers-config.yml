@@ -75,3 +75,16 @@ recognizers:
         context: [vin, número de identificación del vehículo]
     supported_entity: "VEHICLE_VIN"
     type: custom
+
+  - name: AddressRecognizer
+    supported_entity: "ADDRESS"
+    patterns:
+      - name: "US Address"
+        regex: "\\d+\\s+([a-zA-Z]+|[a-zA-Z]+\\s[a-zA-Z]+)"
+        score: 0.8
+    supported_languages:
+      - language: en
+        context: [address, street, location]
+      - language: es
+        context: [dirección, calle, ubicación]
+    type: custom

@@ -186,7 +186,7 @@ class PIIAnalyzer:
         analyzer_results = self.analyzer_engine.analyze(text=text, language=language)
         
         operators = {
-            "DEFAULT": OperatorConfig("replace", {"new_value": "[ANONYMIZED]"})
+            "DEFAULT": OperatorConfig("encrypt", {"key": "WmZq4t7w!z%C&F)J"})
         }
 
         anonymized_text = self.anonymizer_engine.anonymize(text=text, analyzer_results=analyzer_results, operators=operators)
