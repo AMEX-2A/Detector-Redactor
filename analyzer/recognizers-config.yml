@@ -21,7 +21,7 @@ recognizers:
   - name: AmexAccountNumberRecognizer
     patterns:
       - name: "AMEX"
-        regex: "\b3[47]\\d{2}[-\\s]?\\d{6}[-\\s]?\\d{5}\b"
+        regex: "\\b3[47]\\d{2}[-\\s]?\\d{6}[-\\s]?\\d{5}\\b"
         score: 0.9
     supported_languages:
       - language: en
@@ -34,7 +34,7 @@ recognizers:
   - name: PasswordRecognizer
     patterns:
       - name: "PASSWORD"
-        regex: "\b(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}\b"
+        regex: "\\b(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}\\b"
         score: 0.6
     supported_languages:
       - language: en
@@ -44,29 +44,29 @@ recognizers:
     supported_entity: "PASSWORD"
     type: custom
 
-  - name: UserIDRecognizer
-    patterns:
-      - name: "USERID"
-        regex: "\b[A-Za-z0-9_]{3,20}\b"
-        score: 0.5
-    supported_languages:
-      - language: en
-        context: [user, username, userid, login]
-      - language: es
-        context:
-          [
-            usuario,
-            nombre de usuario,
-            identificación de usuario,
-            inicio de sesión,
-          ]
-    supported_entity: "USERID"
-    type: custom
+  # - name: UserIDRecognizer
+  #   patterns:
+  #     - name: "USERID"
+  #       regex: "\\b[A-Za-z0-9_]{3,20}\\b"
+  #       score: 0.5
+  #   supported_languages:
+  #     - language: en
+  #       context: [user, username, userid, login]
+  #     - language: es
+  #       context:
+  #         [
+  #           usuario,
+  #           nombre de usuario,
+  #           identificación de usuario,
+  #           inicio de sesión,
+  #         ]
+  #   supported_entity: "USERID"
+  #   type: custom
 
   - name: VehicleVINRecognizer
     patterns:
       - name: "VIN"
-        regex: "\b[A-HJ-NPR-Z0-9]{17}\b"
+        regex: "\\b[A-HJ-NPR-Z0-9]{17}\\b"
         score: 0.8
     supported_languages:
       - language: en
@@ -76,15 +76,15 @@ recognizers:
     supported_entity: "VEHICLE_VIN"
     type: custom
 
-  - name: AddressRecognizer
-    supported_entity: "ADDRESS"
-    patterns:
-      - name: "US Address"
-        regex: "\\d+\\s+([a-zA-Z]+|[a-zA-Z]+\\s[a-zA-Z]+)"
-        score: 0.8
-    supported_languages:
-      - language: en
-        context: [address, street, location]
-      - language: es
-        context: [dirección, calle, ubicación]
-    type: custom
+  # - name: AddressRecognizer
+  #   supported_entity: "ADDRESS"
+  #   patterns:
+  #     - name: "US Address"
+  #       regex: "\\d+\\s+([a-zA-Z]+|[a-zA-Z]+\\s[a-zA-Z]+)"
+  #       score: 0.6
+  #   supported_languages:
+  #     - language: en
+  #       context: [address, street, location]
+  #     - language: es
+  #       context: [dirección, calle, ubicación]
+  #   type: custom

@@ -160,7 +160,8 @@ class PIIAnalyzer:
             allow_list=self.config.get("allow_list"),
         )
         
-        return [result.to_dict() for result in analyzer_results]
+        #return [result.to_dict() for result in analyzer_results]
+        return analyzer_results
 
     def update_config(self, **kwargs):
         """
@@ -183,12 +184,14 @@ class PIIAnalyzer:
         
     def analyze_and_anonymize(self, text: str, language: str = "en"):
         
-        analyzer_results = self.analyzer_engine.analyze(text=text, language=language)
+        analyzer_results = self.analyze_text(text)
         
+        # operators = {
+        #     "DEFAULT": OperatorConfig("encrypt", {"key": "WmZq4t7w!z%C&F)J"})
+        # }
         operators = {
-            "DEFAULT": OperatorConfig("encrypt", {"key": "WmZq4t7w!z%C&F)J"})
+            "DEFAULT": OperatorConfig("replace", {"new_value" : "<ANONYMIZED>"})
         }
-
         anonymized_text = self.anonymizer_engine.anonymize(text=text, analyzer_results=analyzer_results, operators=operators)
         
         return anonymized_text
@@ -211,11 +214,11 @@ def main():
     analyzer = PIIAnalyzer(config_path=args.config, custom_recognizers_path=args.recognizers)
 
     # Example usage
-    text = "My credit card CVV is 123 and my AMEX account number is 371449635398431"
+    text = "My credit card CVV is 123 and my AMEX account number is 371449635398431 and my vin number is 1HGCM82633A123456"
     results = analyzer.analyze_text(text)
     print("Analyzed results:", results)
     anonymized_text = analyzer.analyze_and_anonymize(text)
-    print("Anonymized Text:" , anonymized_text)
+    print("Anonymized Text:" , anonymized_text.text)
 
 if __name__ == "__main__":
     main()
