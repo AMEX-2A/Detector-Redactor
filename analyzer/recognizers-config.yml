@@ -21,7 +21,7 @@ recognizers:
   - name: AmexAccountNumberRecognizer
     patterns:
       - name: "AMEX"
-        regex: "\\b3[47]\\d{2}[-\\s]?\\d{6}[-\\s]?\\d{5}\\b"
+        regex: "\\b3[47]\\d{2}[-\\s]?\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{3}\\b"
         score: 0.9
     supported_languages:
       - language: en
