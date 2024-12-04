@@ -1,0 +1,22 @@
+__pycache__/
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.git
+
+# Distribution/packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+venv/
+env/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs
+*.log

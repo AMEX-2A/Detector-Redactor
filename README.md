@@ -263,16 +263,22 @@ These recognizers use regex patterns and context words to identify specific type
 
 ## TODOs
 
-1. Implement the Anonymizer class to redact or replace detected PII
-2. Add more custom recognizers for additional PII types
-3. Implement support for more languages
-4. Write test cases and improve error handling
-5. Fine-tune recognizer patterns and scoring
-6. Implement a mechanism to easily add new recognizers without modifying the main code
-7. Create a user-friendly interface for configuring recognizers and anonymizers
-8. Optimize performance for large-scale text analysis
-9. Implement logging and reporting features
-10. Add support for different output formats (e.g., JSON, CSV)
+Listed in order of priority:
+
+1. ~~Implement the Anonymizer class to redact or replace detected PII~~
+2. ~~Create a user-friendly interface for configuring recognizers and anonymizers~~
+3. Make encryption more format-preserving in a way that is easy for an LLM to still understand the context of the message
+4. Build pipeline to feed redacted text into a LLM for further processing (fun, optional, would look cool but needs encryption fixed)
+
+### Low Priority
+
+1. Add more custom recognizers for additional PII types
+2. Implement support for more languages
+3. Write test cases and improve error handling
+4. Fine-tune recognizer patterns and scoring
+5. Implement a mechanism to easily add new recognizers without modifying the main code
+6. Implement logging and reporting features (for console, but also metadata download for user would be nice)
+7. Add support for different output formats (e.g., JSON, CSV)
 
 ## Contributing
 

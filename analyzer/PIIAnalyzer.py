@@ -8,7 +8,7 @@ from presidio_analyzer.recognizer_registry import RecognizerRegistryProvider
 from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
 from Crypto.Random import get_random_bytes
-from FPE import FPE  
+from analyzer.FPE import FPE  
 import re
 
 class PIIAnalyzer:
