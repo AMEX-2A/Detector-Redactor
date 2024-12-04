@@ -85,6 +85,25 @@ def main() -> None:
 
     # Text input above columns
     text_input = st.text_area("Enter text to analyze:", height=200, key="text_input")
+
+    # Choose redaction methods
+    if "anonymization_method" not in st.session_state:
+        st.session_state.anonymization_method = "FPE"  # Default method is FPE
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("🔐 FPE Anonymizer", key="fpe_button"):
+            st.session_state.anonymization_method = "FPE"  # Set FPE as the selected method
+
+    with col2:      
+        if st.button("Entity Masking Anonymizer", key="entities_button"):
+            st.session_state.anonymization_method = "Entities"  # Set Entities as the selected method
+    
+    with col3:
+        if st.button("Simple Redactor", key = "simple_button"):
+            st.session_state.anonymization_method = "Simple"
+
     if text_input:
         input_text = text_input
         
@@ -111,9 +130,20 @@ def main() -> None:
                     
             with col2:
                 st.markdown("### 🔐 Anonymized Text")
-                anonymized_text = analyzer.analyze_and_anonymize(input_text)
-                st.text_area("", anonymized_text, height=200)
+                # Add buttons for toggling between FPE and Entity Masking
                 
+            
+                anonymized_text = None  # Initialize variable for anonymized text
+            
+                # Handle button clicks
+                if st.session_state.anonymization_method == "FPE":
+                    anonymized_text = analyzer.analyze_and_anonymize_FPE(input_text)
+                elif st.session_state.anonymization_method == "Entities":
+                    anonymized_text = analyzer.analyze_and_anonymize_entities(input_text)
+                elif st.session_state.anonymization_method == "Simple":
+                    anonymized_text = analyzer.analyze_and_anonymize_simple(input_text)
+
+                st.text_area("", anonymized_text, height=200)
                 st.download_button(          # download button for anonymized text
                     label="📥 Download Anonymized Text",
                     data=anonymized_text,

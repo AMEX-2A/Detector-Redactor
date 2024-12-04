@@ -186,7 +186,7 @@ class PIIAnalyzer:
             supported_languages=self.config["supported_languages"]
         )
         
-    def analyze_and_anonymize(self, text: str, language: str = "en"):
+    def analyze_and_anonymize_FPE(self, text: str, language: str = "en"):
         
         """
         Analyze the text and anonymize sensitive entities using format-preserving encryption.
@@ -204,6 +204,45 @@ class PIIAnalyzer:
             anonymized_text = anonymized_text[:start] + anonymized_entity + anonymized_text[end:]
 
         return anonymized_text
+    
+    def analyze_and_anonymize_entities(self, text: str, language: str = "en"):
+        
+        """
+        Analyze the text and redact sensitive entities by masking them with their entity types,
+        properly handling overlaps in entity annotations.
+        """
+        # Analyze the text to detect entities
+        analyzer_results = self.analyzer_engine.analyze(text=text, language=language)
+
+        # Dynamically build operators for each detected entity type
+        operators = {}
+        for result in analyzer_results:
+            entity_type = result.entity_type.upper()  # Get the entity type (e.g., CREDIT_CARD)
+            # Define an operator for the entity type if it doesn't already exist
+            if entity_type not in operators:
+                operators[entity_type] = OperatorConfig("replace", {"new_value": f"[{entity_type}]"})
+    
+        # Fallback to DEFAULT operator for entities without a specific operator
+        operators["DEFAULT"] = OperatorConfig("replace", {"new_value": "[ANONYMIZED]"})
+
+        # Anonymize text using the defined operators
+        anonymized_text = self.anonymizer_engine.anonymize(
+            text=text,
+            analyzer_results=analyzer_results,
+            operators=operators
+        ).text
+        return anonymized_text
+
+    def analyze_and_anonymize_simple(self, text: str, language: str = "en"):
+        analyzer_results = self.analyzer_engine.analyze(text=text, language=language)
+        
+        operators = {
+            "DEFAULT": OperatorConfig("replace", {"new_value": "[ANONYMIZED]"})
+        }
+        anonymized_text = self.anonymizer_engine.anonymize(text=text, analyzer_results=analyzer_results, operators=operators).text
+        
+        return anonymized_text
+        
 
 def main():
     """
@@ -227,7 +266,7 @@ def main():
     results = analyzer.analyze_text(text)
     print("Analyzed results:", results)
     print("Original Text: ", text)
-    anonymized_text = analyzer.analyze_and_anonymize(text)
+    anonymized_text = analyzer.analyze_and_anonymize_entities(text)
     print("Anonymized Text:" , anonymized_text)
 
 if __name__ == "__main__":
