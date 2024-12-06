@@ -166,6 +166,8 @@ def main() -> None:
         try:
             file_extension = uploaded_file.name.split('.')[-1].lower()
             content = uploaded_file.getvalue().decode()
+            
+            # process file content based on type
             if file_extension == 'json':
                 import json                     # lazy import json when needed
                 try:
@@ -173,7 +175,8 @@ def main() -> None:
                     input_text = ' '.join(str(v) for v in json_content.values() if isinstance(v, str))  # extract strings from json
                 except json.JSONDecodeError:
                     st.error("Invalid JSON file format")
-                    input_text = ""
+                    return  # exit if invalid json
+                    
             elif file_extension == 'csv':
                 import pandas as pd            # lazy import pandas for csv handling
                 import io
@@ -186,16 +189,57 @@ def main() -> None:
                     st.dataframe(df.head(), height=150)
                 except Exception as e:
                     st.error(f"Error processing CSV file: {str(e)}")
-                    input_text = ""
-            else:                    # handle txt files directly
+                    return  # exit if csv processing fails
+            else:
                 input_text = content
                 
-            if input_text:           # show processed content if valid
-                st.session_state.text_input = input_text  # update session state
-                st.experimental_rerun()      # rerun to process the text
+            # process the extracted text directly instead of updating session state
+            try:
+                with st.spinner('Analyzing text...'):
+                    results = analyzer.analyze_text(input_text, language=language)
+                
+                # display results using the same code as text input
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("### 🔍 Detected PII")
+                    if results:
+                        pii_data = []
+                        for result in results:
+                            detected_text = input_text[result.start:result.end]
+                            pii_data.append({
+                                "Type": result.entity_type,
+                                "Text": detected_text,
+                                "Position": f"{result.start}-{result.end}"
+                            })
+                        st.table(pii_data)
+                    else:
+                        st.info("No PII detected in the text.")
+                        
+                with col2:
+                    st.markdown("### 🔐 Anonymized Text")
+                    
+                    anonymized_text = None
+                    if st.session_state.anonymization_method == "FPE":
+                        anonymized_text = analyzer.analyze_and_anonymize_FPE(input_text)
+                    elif st.session_state.anonymization_method == "Entities":
+                        anonymized_text = analyzer.analyze_and_anonymize_entities(input_text)
+                    elif st.session_state.anonymization_method == "Simple":
+                        anonymized_text = analyzer.analyze_and_anonymize_simple(input_text)
+
+                    st.text_area("", anonymized_text, height=200)
+                    st.download_button(
+                        label="📥 Download Anonymized Text",
+                        data=anonymized_text,
+                        file_name="anonymized_text.txt",
+                        mime="text/plain"
+                    )
+                    
+            except Exception as e:
+                st.error(f"An error occurred during analysis: {str(e)}")
                 
         except UnicodeDecodeError:
-            st.error("Unable to read file. Please ensure it's a valid text file.")
+            st.error("Unable to read file. Please ensure it's a valid text, csv, or json file.")
 
 if __name__ == "__main__":
     main()

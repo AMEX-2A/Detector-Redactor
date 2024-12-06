@@ -1,4 +1,4 @@
-__pycache__/
+analyzer/__pycache__/
 # Python cache files
 __pycache__/
 *.py[cod]
