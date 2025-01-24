@@ -2,6 +2,8 @@ Here's the README content in plain text format with the requested changes:
 
 # Detector-Redactor
 
+# Demo
+![Dectector-Redactor Demo](demodetector-ezgif.com-video-to-gif-converter.gif) <br>
 Detector-Redactor is a Python-based tool for analyzing and redacting Personally Identifiable Information (PII) from text. It uses the Presidio Analyzer and Anonymizer libraries to detect and anonymize sensitive information.
 
 ## Table of Contents
